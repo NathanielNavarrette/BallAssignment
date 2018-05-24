@@ -1,6 +1,7 @@
 #include "ballanimation.h"
 #include <QPaintEvent>
 #include <QPainter>
+#include <QTime>
 #include <QDebug>
 
 /*
@@ -36,39 +37,60 @@ void BallAnimation::paintEvent(QPaintEvent *event)
     painter.drawRect(QRect(0,0,width()-1,height()-1));
     painter.setBrush(Qt::blue);
     painter.setPen(Qt::red);
-    painter.drawEllipse(m_origin,10,10);
+    painter.drawEllipse(m_origin,m_bwidth,m_bheight);
+    this->m_bheight = 10;
+    this->m_bwidth = 10;
 }
 
-int BallAnimation::collisionDetect()
+void BallAnimation::collisionDetect()
 {
-    if(m_origin.y() <= 0)
-        return 1;
-    else if(m_origin.x() >= this->width())
-        return 2;
-    else if(m_origin.y() >= this->height())
-        return 3;
-    else if(m_origin.x() <= 0)
-        return 4;
+    if(m_origin.y() <= 0 + 12 && this->yMod < 0)
+    {
+        this->yMod *= -1 * randGen();
+        this->m_bheight = 6;
+    }else if(m_origin.x() >= this->width() - 12 && this->xMod > 0){
+        this->xMod *= -1 * randGen();
+        this->m_bwidth = 6;
+    }else if(m_origin.y() >= this->height() - 12 && this->yMod > 0){
+        this->yMod *= -1 * randGen();
+        this->m_bheight = 6;
+    }else if(m_origin.x() <= 0 + 12 && this->xMod < 0){
+        this->xMod *= -1 * randGen();
+        this->m_bwidth = 6;
+    }
+
+    int prev_x = this->xMod;
+    int prev_y = this->yMod;
+
+    this->yMod %= 4 +1;
+    this->xMod %= 4 +1;
+
+    if(this->xMod >= 0 && prev_x < 0)
+        this->xMod += -1;
+    else if(this->yMod >= 0 && prev_y < 0)
+        this->yMod += -1;
+    else if(this->xMod <= 0 && prev_x >= 0)
+        this->xMod += 1;
+    else if(this->yMod <= 0 && prev_y >= 0)
+        this->yMod += 1;
+
+    //check if it glitches out and flies out
+    if(m_origin.y() >= this-> height() || m_origin.y() < 0 || m_origin.x() >= this->height() || m_origin.x() < 0)
+        setOrigin(QPoint(50, 50));
+}
+
+int BallAnimation::randGen()
+{
+    int max = 2;
+    qsrand(QDateTime::currentMSecsSinceEpoch()%5000); //q seed random
+
+    int my_rand = qrand();
+    my_rand %= max;
+    return (my_rand + 1);
 }
 
 void BallAnimation::setMove(int mv_x, int mv_y)
 {
-    m_mvX = mv_x;
-    m_mvY = mv_y;
-    switch(collisionDetect())
-    {
-    case 1:
-        setMove(m_mvX, m_mvY * -1);
-        break;
-    case 2:
-        setMove(m_mvX * -1, m_mvY);
-        break;
-    case 3:
-        setMove(m_mvX, m_mvY * -1);
-        break;
-    case 4:
-        setMove(m_mvX * -1, m_mvY);
-        break;
-    }
-    addToOrigin(QPoint(m_mvX, m_mvY));
+    collisionDetect();
+    addToOrigin( QPoint( (mv_x * xMod), (mv_y * yMod) ));
 }

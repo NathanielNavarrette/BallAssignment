@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QTimer *timer = new QTimer(this);
 
     connect(timer, SIGNAL(timeout()), this, SLOT(readData()));
-    timer->start(100);
+    timer->start(80);
     
     banimate->move(QPoint(200,200));
     //setFixedSize(800,600);
@@ -82,7 +82,7 @@ void MainWindow::readData()
     //processMessage(m_buffer);
 
     //banimate->addToOrigin(QPoint(1,1)); // where the ball gets moved
-    banimate->setMove(1,-1);
+    banimate->setMove(2,2);
     banimate->repaint(); // repain the ball
 
     processMessage(QString("%1 %2").arg(count).arg(QDateTime::currentDateTime().toTime_t() ));

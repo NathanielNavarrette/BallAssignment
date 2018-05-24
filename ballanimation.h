@@ -18,12 +18,18 @@ signals:
 
 public slots:
     void paintEvent(QPaintEvent* event);
+
 private:
-    int collisionDetect();
-    int m_size = 100;
+    void collisionDetect();
+    int randGen();
+    int m_size = 150;
     QPoint m_origin;
-    int m_mvY;
-    int m_mvX;
+
+    int xMod = 1;
+    int yMod = 1;
+
+    int m_bwidth = 10;
+    int m_bheight = 10;
 };
 
 #endif // BALLANIMATION_H
